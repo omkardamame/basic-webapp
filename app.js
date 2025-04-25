@@ -10,7 +10,13 @@ app.use('/favicon.ico', express.static('favicon.ico'));
 
 // Endpoint to fetch the IP address
 app.get('/api/ip', (req, res) => {
-  const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
+  // If the IP starts with "::ffff:", remove that prefix
+  if (ip && ip.startsWith('::ffff:')) {
+    ip = ip.substring(7); // Remove the "::ffff:" part
+  }
+
   res.json({ ip });
 });
 
