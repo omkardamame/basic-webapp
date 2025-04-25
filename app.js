@@ -8,6 +8,12 @@ app.set('trust proxy', true);
 // Serve static favicon if needed (optional: drop in your own favicon.ico)
 app.use('/favicon.ico', express.static('favicon.ico'));
 
+// Endpoint to fetch the IP address
+app.get('/api/ip', (req, res) => {
+  const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  res.json({ ip });
+});
+
 app.get('/', (req, res) => {
   const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
   const userAgent = req.get('User-Agent');
