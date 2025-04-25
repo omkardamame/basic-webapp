@@ -21,14 +21,10 @@ node app.js
 
 The app will run at: http://localhost:3000
 
----
-
 ## 🙃 Rick Roll Disclaimer
 
 Yes, you’ll be rickrolled. Enjoy 🎶
 
----
-
-🧾 License
+## 🧾 License
 
 This project is licensed under the [MIT License](LICENSE).
