@@ -32,7 +32,7 @@ app.get('/', (req, res) => {
       <title>Your Visitor Info</title>
 
       <!-- Favicon -->
-      <link rel="icon" href="https://emojicdn.elk.sh/🌍" />
+      <link rel="icon" href="https://emojicdn.elk.sh/😭" />
 
       <!-- Bootstrap -->
       <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
