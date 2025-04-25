@@ -8,20 +8,14 @@ app.set('trust proxy', true);
 // Serve static favicon if needed (optional: drop in your own favicon.ico)
 app.use('/favicon.ico', express.static('favicon.ico'));
 
-// Endpoint to fetch the IP address
-app.get('/api/ip', (req, res) => {
+app.get('/', (req, res) => {
   let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
-  // If the IP starts with "::ffff:", remove that prefix
-  if (ip && ip.startsWith('::ffff:')) {
-    ip = ip.substring(7); // Remove the "::ffff:" part
+  // Ensure IP is IPv4
+  if (ip && ip.includes('::ffff:')) {
+    ip = ip.split('::ffff:')[1]; // Extract IPv4 from IPv6-mapped IPv4 address
   }
-
-  res.json({ ip });
-});
-
-app.get('/', (req, res) => {
-  const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  
   const userAgent = req.get('User-Agent');
   const language = req.get('Accept-Language');
   const referrer = req.get('Referer') || 'None';
