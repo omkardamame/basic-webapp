@@ -18,7 +18,7 @@
 git clone https://github.com/omkardamame/basic-webapp.git
 cd basic-webapp
 npm install
-node index.js
+node app.js
 ```
 
 The app will run at: http://localhost:3000
