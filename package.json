@@ -1,0 +1,26 @@
+{
+  "name": "basic-webapp",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/omkardamame/basic-webapp.git"
+  },
+  "author": "Omkar Damame",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/omkardamame/basic-webapp/issues"
+  },
+  "homepage": "https://github.com/omkardamame/basic-webapp#readme",
+  "description": "basic webapp for CI/CD",
+  "keywords": [
+    "webapp"
+  ]
+}
