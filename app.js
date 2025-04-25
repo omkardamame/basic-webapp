@@ -9,7 +9,7 @@ app.set('trust proxy', true);
 app.use('/favicon.ico', express.static('favicon.ico'));
 
 app.get('/', (req, res) => {
-  const ip = req.ip;
+  const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
   const userAgent = req.get('User-Agent');
   const language = req.get('Accept-Language');
   const referrer = req.get('Referer') || 'None';
