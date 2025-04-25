@@ -9,8 +9,6 @@
   - User-Agent (browser and OS info)
 - Styled with modern fonts and dark mode
 - Includes a fun **Rick Roll Easter Egg**
-- Supports Cloudflare Tunnel to expose the app over the internet
-- Deployable with Jenkins CI/CD pipeline
 
 ## 📦 Installation
 
@@ -22,25 +20,6 @@ node app.js
 ```
 
 The app will run at: http://localhost:3000
-
-## 🌐 Expose to Internet
-
-Use Cloudflare Tunnel to make your local server publicly available.
-
-```bash
-cloudflared tunnel --url http://localhost:3000
-```
-
-Then configure your DNS to use the public URL.
-
----
-
-🤖 Jenkins CI/CD (Optional)
-This project can be deployed using Jenkins. Basic CI/CD flow:
-
-- Push to GitHub triggers Jenkins
-- Jenkins pulls latest code
-- Builds and restarts the app
 
 ---
 
