@@ -8,7 +8,6 @@
   - IP address
   - User-Agent (browser and OS info)
 - Styled with modern fonts and dark mode
-- Includes a fun **Rick Roll Easter Egg**
 
 ## 📦 Installation
 
