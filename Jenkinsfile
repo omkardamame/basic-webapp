@@ -27,7 +27,7 @@ pipeline {
         }
         stage('Build docker image') {
             steps {
-                sh 'apt-get update && apt-get install -y docker.io'
+                sh 'apt update && apt install -y docker.io'
                 echo "Tagging the image for reuse"
                 sh "docker build -t ${IMAGE}:${TAG} ."
             }
