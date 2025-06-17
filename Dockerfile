@@ -1,20 +1,25 @@
-# Use the official Node.js image as a base image
-FROM node:16
+# Stage 1: Install dependencies and build
+FROM node:16-alpine AS builder
 
-# Set the working directory inside the container
 WORKDIR /app
 
-# Copy package.json and package-lock.json first to install dependencies
+# Only install dependencies
 COPY package*.json ./
+RUN npm ci --omit=dev
 
-# Install dependencies
-RUN npm install
-
-# Copy the rest of the application code into the container
+# Copy the rest of the application code
 COPY . .
 
-# Expose the application port (default port for the app)
+# Stage 2: Create a minimal production image
+FROM node:16-alpine
+
+WORKDIR /app
+
+# Copy app with production deps only
+COPY --from=builder /app /app
+
+# Expose app port
 EXPOSE 3030
 
-# Start the application
+# Run the app
 CMD ["npm", "start"]
