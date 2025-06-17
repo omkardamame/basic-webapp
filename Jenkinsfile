@@ -66,20 +66,20 @@ pipeline {
                 }
             }
         }
-        stage('Deploy to production server') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sshagent([env.SSH_PROD_KEY]) {
-                        sh """
-                            ssh -o StrictHostKeyChecking=no admin@${PROD_SERVER} '
-                                echo "${DOCKER_PASS}" | docker login -u "${DOCKER_USER}" --password-stdin &&
-                                docker stop basic-webapp-prod || true &&
-                                docker rm basic-webapp-prod || true &&
-                                docker pull ${IMAGE}:${TAG} &&
-                                docker run -d --name basic-webapp-prod -p 3030:3030 ${IMAGE}:${TAG}
-                            '
-                        """
-                    }
+        stages {
+            stage('Deploy to Production') {
+                steps {
+                    sshCommand remote: [
+                        host: "${PROD_SERVER}",
+                        user: "admin",
+                        password: "prod-ssh-password",
+                        allowAnyHosts: true
+                    ], command: """
+                        docker stop basic-webapp-prod || true &&
+                        docker rm basic-webapp-prod || true &&
+                        docker pull ${IMAGE}:${TAG} &&
+                        docker run -d --name basic-webapp-prod -p 3030:3030 ${IMAGE}:${TAG}
+                    """
                 }
             }
         }
