@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker {
-            image 'cimg/node:18.20.2-docker'
+            image 'node:16'
         }
     }
     environment {
