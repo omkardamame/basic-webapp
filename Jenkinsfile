@@ -1,5 +1,5 @@
 pipeline {
-    agent { dockerfile true }
+    agent any
     environment {
         IMAGE = "omkardamame/basic-webapp"
         TAG = "build-${BUILD_NUMBER}"
