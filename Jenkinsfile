@@ -13,18 +13,18 @@ pipeline {
         SSH_STAGING_KEY = "dev-ssh-key"
     }
     stages {
-        stage('Clone repo') {
+        stage('Cloning repo') {
             steps {
                 git 'https://github.com/omkardamame/basic-webapp.git'
             }
         }
-        stage('Test') {
+        stage('Testing') {
             steps {
                 echo 'Running test...'
                 sh 'npm test'
             }
         }
-        stage('Build & Push Docker Image') {
+        stage('Build & push docker image') {
             steps {
                 echo 'Building and pushing image to Docker Hub'
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
@@ -34,14 +34,14 @@ pipeline {
                 }
             }
         }
-        stage('Waiting for Approval') {
+        stage('Waiting for approval') {
             steps {
                 timeout(time: 1, unit: 'DAYS') {
                     input message: 'Approve deployment for staging?', ok: 'Deploy'
                 }
             }
         }
-        stage('Deploy to Staging Server') {
+        stage('Deploy to staging server') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     sshagent([env.SSH_STAGING_KEY]) {
@@ -55,6 +55,28 @@ pipeline {
                             '
                         """
                     }
+                }
+            }
+        }
+        stage('Waiting for approval') {
+            steps {
+                timeout(time: 7, unit: 'DAYS') {
+                    input message: 'Approve deployment for production?', ok: 'Deploy'
+                }
+            }
+        }
+        stage('Deploy to production server') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        sh """
+                            ssh -o StrictHostKeyChecking=no admin@${PROD_SERVER} '
+                                echo "${DOCKER_PASS}" | docker login -u "${DOCKER_USER}" --password-stdin &&
+                                docker stop basic-webapp-prod || true &&
+                                docker rm basic-webapp-prod || true &&
+                                docker pull ${IMAGE}:${TAG} &&
+                                docker run -d --name basic-webapp-prod -p 3030:3030 ${IMAGE}:${TAG}
+                            '
+                        """
                 }
             }
         }
