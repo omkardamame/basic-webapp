@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker {
-            image 'node:16'
+            image 'cimg/node:18.20.2-docker'
             args '-v /var/run/docker.sock:/var/run/docker.sock'
         }
     }
@@ -27,7 +27,6 @@ pipeline {
         }
         stage('Build docker image') {
             steps {
-                sh 'apt update && apt install -y docker.io'
                 echo "Tagging the image for reuse"
                 sh "docker build -t ${IMAGE}:${TAG} ."
             }
