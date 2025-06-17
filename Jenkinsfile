@@ -5,7 +5,7 @@ pipeline {
         TAG = "build-${BUILD_NUMBER}"
         STAGING_SERVER = "jenkins-master.sussysus.in"
         PROD_SERVER = "srv773066.hstgr.cloud"
-        SSH_CREDENTIALS_STAGING = "staging-ssh-key"
+        SSH_STAGING_KEY = "dev-ssh-key"
     }
     stages {
         stage('Clone repo') {
@@ -19,9 +19,30 @@ pipeline {
                 sh "npm test"
             }
         }
-        stage('Debug') {
+        stage('Build docker image') {
             steps {
-                echo "Image name and tag is: ${IMAGE}:${TAG}"
+                echo "Tagging the image for reuse"
+                sh "docker build -t ${IMAGE}:${TAG} ."
+            }
+        }
+        stage('Waiting for Approval') {
+            steps {
+                timeout(time: 1, unit: 'DAYS') {
+                    input message: 'Approve deployment for staging?', ok: 'Deploy'
+                }
+            }
+        }
+        stage('Deploy to staging server') {
+            steps {
+                sshagent (credentials: [env.SSH_STAGING_KEY]) {
+                    sh "docker save ${IMAGE}:${TAG} -o ${IMAGE}_${TAG}.tar"
+                    sh "scp -o StrictHostKeyChecking=no ${IMAGE}_${TAG}.tar jenkins@${STAGING_SERVER}:/tmp/"
+                    sh "ssh -o StrictHostKeyChecking=no jenkins@${STAGING_SERVER}"
+                    sh "docker load -i /tmp/${IMAGE}_${TAG}.tar"
+                    sh "docker stop basic-webapp-staging || true" 
+                    sh "docker rm basic-webapp-staging || true" 
+                    sh "docker run -d --name basic-webapp-staging -p 3030:3030 ${IMAGE}:${TAG} "
+                }
             }
         }
     }
