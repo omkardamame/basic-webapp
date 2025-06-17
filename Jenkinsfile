@@ -1,5 +1,5 @@
 pipeline {
-    agent { dockerfile true }
+    agent 'docker-enabled-agent'
     environment {
         IMAGE = "omkardamame/basic-webapp"
         TAG = "build-${BUILD_NUMBER}"
@@ -16,6 +16,7 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Running a test'
+                sh "npm install"
                 sh "npm test"
             }
         }
@@ -37,11 +38,14 @@ pipeline {
                 sshagent (credentials: [env.SSH_STAGING_KEY]) {
                     sh "docker save ${IMAGE}:${TAG} -o ${IMAGE}_${TAG}.tar"
                     sh "scp -o StrictHostKeyChecking=no ${IMAGE}_${TAG}.tar jenkins@${STAGING_SERVER}:/tmp/"
-                    sh "ssh -o StrictHostKeyChecking=no jenkins@${STAGING_SERVER}"
-                    sh "docker load -i /tmp/${IMAGE}_${TAG}.tar"
-                    sh "docker stop basic-webapp-staging || true" 
-                    sh "docker rm basic-webapp-staging || true" 
-                    sh "docker run -d --name basic-webapp-staging -p 3030:3030 ${IMAGE}:${TAG} "
+                    sh """
+                    ssh -o StrictHostKeyChecking=no jenkins@${STAGING_SERVER} '
+                        docker load -i /tmp/${IMAGE}_${TAG}.tar &&
+                        docker stop basic-webapp-staging || true &&
+                        docker rm basic-webapp-staging || true &&
+                        docker run -d --name basic-webapp-staging -p 3030:3030 ${IMAGE}:${TAG}
+                    '
+                    """
                 }
             }
         }
