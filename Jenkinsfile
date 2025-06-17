@@ -34,7 +34,7 @@ pipeline {
                 }
             }
         }
-        stage('Waiting for approval') {
+        stage('Waiting for approval: STAGING!!!') {
             steps {
                 timeout(time: 1, unit: 'DAYS') {
                     input message: 'Approve deployment for staging?', ok: 'Deploy'
@@ -58,7 +58,7 @@ pipeline {
                 }
             }
         }
-        stage('Waiting for approval') {
+        stage('Waiting for approval: PRODUCTION!!!') {
             steps {
                 timeout(time: 7, unit: 'DAYS') {
                     input message: 'Approve deployment for production?', ok: 'Deploy'
