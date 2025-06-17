@@ -13,15 +13,15 @@ pipeline {
                 git 'https://github.com/omkardamame/basic-webapp.git'
             }
         }
-        stage('Debug') {
-            steps {
-                echo "Image name and tag is: ${IMAGE}:${TAG}"
-            }
-        }
         stage('Test') {
             steps {
                 echo 'Running a test'
                 sh "docker run --rm ${IMAGE}:${TAG} npm test"
+            }
+        }
+        stage('Debug') {
+            steps {
+                echo "Image name and tag is: ${IMAGE}:${TAG}"
             }
         }
     }
