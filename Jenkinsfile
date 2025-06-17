@@ -42,11 +42,11 @@ pipeline {
         stage('Deploy to staging server') {
             steps {
                 sshagent (credentials: [env.SSH_STAGING_KEY]) {
-                    sh "docker save ${IMAGE}:${TAG} -o ${IMAGE}_${TAG}.tar"
-                    sh "scp -o StrictHostKeyChecking=no ${IMAGE}_${TAG}.tar jenkins@${STAGING_SERVER}:/tmp/"
+                    sh "docker save ${IMAGE}:${TAG} -o basic-webapp_${TAG}.tar"
+                    sh "scp -o StrictHostKeyChecking=no basic-webapp_${TAG}.tar admin@${STAGING_SERVER}:/tmp/"
                     sh """
                     ssh -o StrictHostKeyChecking=no admin@${STAGING_SERVER} '
-                        docker load -i /tmp/${IMAGE}_${TAG}.tar &&
+                        docker load -i /tmp/basic-webapp_${TAG}.tar &&
                         docker stop basic-webapp-staging || true &&
                         docker rm basic-webapp-staging || true &&
                         docker run -d --name basic-webapp-staging -p 3030:3030 ${IMAGE}:${TAG}
