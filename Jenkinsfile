@@ -8,7 +8,6 @@ pipeline {
     environment {
         IMAGE = "omkardamame/basic-webapp"
         TAG = "build-${BUILD_NUMBER}"
-        DOCKER_CONFIG = "/tmp/.docker"
         STAGING_SERVER = "jenkins-master.sussysus.in"
         PROD_SERVER = "srv773066.hstgr.cloud"
         SSH_STAGING_KEY = "dev-ssh-key"
@@ -21,15 +20,20 @@ pipeline {
         }
         stage('Test') {
             steps {
-                echo 'Running a test'
-                sh "npm install"
+                echo 'Running test...'
                 sh "npm test"
             }
         }
-        stage('Build docker image') {
+        stage('Build & Push Docker Image') {
             steps {
-                echo "Tagging the image for reuse"
-                sh "DOCKER_CONFIG=/tmp/.docker docker build -t ${IMAGE}:${TAG} ."
+                echo "Building and pushing image to Docker Hub"
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh """
+                        docker login -u $DOCKER_USER -p $DOCKER_PASS
+                        docker build -t ${IMAGE}:${TAG} .
+                        docker push ${IMAGE}:${TAG}
+                    """
+                }
             }
         }
         stage('Waiting for Approval') {
@@ -39,18 +43,17 @@ pipeline {
                 }
             }
         }
-        stage('Deploy to staging server') {
+        stage('Deploy to Staging Server') {
             steps {
-                sshagent (credentials: [env.SSH_STAGING_KEY]) {
-                    sh "docker save ${IMAGE}:${TAG} -o basic-webapp_${TAG}.tar"
-                    sh "scp -o StrictHostKeyChecking=no basic-webapp_${TAG}.tar admin@${STAGING_SERVER}:/tmp/"
+                sshagent(['dev-ssh-key']) {
                     sh """
-                    ssh -o StrictHostKeyChecking=no admin@${STAGING_SERVER} '
-                        docker load -i /tmp/basic-webapp_${TAG}.tar &&
-                        docker stop basic-webapp-staging || true &&
-                        docker rm basic-webapp-staging || true &&
-                        docker run -d --name basic-webapp-staging -p 3030:3030 ${IMAGE}:${TAG}
-                    '
+                        ssh -o StrictHostKeyChecking=no admin@${STAGING_SERVER} '
+                            docker login -u $DOCKER_USER -p $DOCKER_PASS &&
+                            docker stop basic-webapp-staging || true &&
+                            docker rm basic-webapp-staging || true &&
+                            docker pull ${IMAGE}:${TAG} &&
+                            docker run -d --name basic-webapp-staging -p 3030:3030 ${IMAGE}:${TAG}
+                        '
                     """
                 }
             }
