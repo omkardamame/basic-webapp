@@ -66,21 +66,19 @@ pipeline {
                 }
             }
         }
-        stages {
-            stage('Deploy to Production') {
-                steps {
-                    sshCommand remote: [
-                        host: "${PROD_SERVER}",
-                        user: "admin",
-                        password: "prod-ssh-password",
-                        allowAnyHosts: true
-                    ], command: """
-                        docker stop basic-webapp-prod || true &&
-                        docker rm basic-webapp-prod || true &&
-                        docker pull ${IMAGE}:${TAG} &&
-                        docker run -d --name basic-webapp-prod -p 3030:3030 ${IMAGE}:${TAG}
-                    """
-                }
+       stage('Deploy to Production') {
+            steps {
+                 sshCommand remote: [
+                    host: "${PROD_SERVER}",
+                    user: "admin",
+                    password: "prod-ssh-password",
+                    allowAnyHosts: true
+                ], command: """
+                    docker stop basic-webapp-prod || true &&
+                    docker rm basic-webapp-prod || true &&
+                    docker pull ${IMAGE}:${TAG} &&
+                    docker run -d --name basic-webapp-prod -p 3030:3030 ${IMAGE}:${TAG}
+                """
             }
         }
     }
