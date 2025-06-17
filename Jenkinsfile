@@ -68,17 +68,19 @@ pipeline {
         }
        stage('Deploy to Production') {
             steps {
-                 sshCommand remote: [
-                    host: "${PROD_SERVER}",
-                    user: "admin",
-                    password: "prod-ssh-password",
-                    allowAnyHosts: true
-                ], command: """
-                    docker stop basic-webapp-prod || true &&
-                    docker rm basic-webapp-prod || true &&
-                    docker pull ${IMAGE}:${TAG} &&
-                    docker run -d --name basic-webapp-prod -p 3030:3030 ${IMAGE}:${TAG}
-                """
+                withCredentials([usernamePassword(credentialsId: 'prod-ssh-password', usernameVariable: 'PROD_USER', passwordVariable: 'PROD_PASS')]) {
+                    sshCommand remote: [
+                        host: "${PROD_SERVER}",
+                        user: "${PROD_USER}",
+                        password: "${PROD_PASS}",
+                        allowAnyHosts: true
+                    ], command: """
+                        docker stop basic-webapp-prod || true &&
+                        docker rm basic-webapp-prod || true &&
+                        docker pull ${IMAGE}:${TAG} &&
+                        docker run -d --name basic-webapp-prod -p 3030:3030 ${IMAGE}:${TAG}
+                    """
+                }
             }
         }
     }
