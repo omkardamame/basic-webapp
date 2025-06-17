@@ -70,6 +70,7 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'prod-ssh-password', usernameVariable: 'PROD_USER', passwordVariable: 'PROD_PASS')]) {
                     sshCommand remote: [
+                        name: "prod-server",
                         host: "${PROD_SERVER}",
                         user: "${PROD_USER}",
                         password: "${PROD_PASS}",
