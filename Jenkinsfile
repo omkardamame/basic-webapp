@@ -1,5 +1,9 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'node:16'
+        }
+    }
     environment {
         IMAGE = "omkardamame/basic-webapp"
         TAG = "build-${BUILD_NUMBER}"
@@ -39,7 +43,7 @@ pipeline {
                     sh "docker save ${IMAGE}:${TAG} -o ${IMAGE}_${TAG}.tar"
                     sh "scp -o StrictHostKeyChecking=no ${IMAGE}_${TAG}.tar jenkins@${STAGING_SERVER}:/tmp/"
                     sh """
-                    ssh -o StrictHostKeyChecking=no jenkins@${STAGING_SERVER} '
+                    ssh -o StrictHostKeyChecking=no admin@${STAGING_SERVER} '
                         docker load -i /tmp/${IMAGE}_${TAG}.tar &&
                         docker stop basic-webapp-staging || true &&
                         docker rm basic-webapp-staging || true &&
