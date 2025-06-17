@@ -11,6 +11,7 @@ pipeline {
         STAGING_SERVER = "jenkins-master.sussysus.in"
         PROD_SERVER = "srv773066.hstgr.cloud"
         SSH_STAGING_KEY = "dev-ssh-key"
+        SSH_PROD_KEY = "prod-ssh-key"
     }
     stages {
         stage('Cloning repo') {
@@ -68,6 +69,7 @@ pipeline {
         stage('Deploy to production server') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sshagent([env.SSH_PROD_KEY]) {
                         sh """
                             ssh -o StrictHostKeyChecking=no admin@${PROD_SERVER} '
                                 echo "${DOCKER_PASS}" | docker login -u "${DOCKER_USER}" --password-stdin &&
@@ -77,6 +79,7 @@ pipeline {
                                 docker run -d --name basic-webapp-prod -p 3030:3030 ${IMAGE}:${TAG}
                             '
                         """
+                    }
                 }
             }
         }
