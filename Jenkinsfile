@@ -8,6 +8,7 @@ pipeline {
     environment {
         IMAGE = "omkardamame/basic-webapp"
         TAG = "build-${BUILD_NUMBER}"
+        DOCKER_CONFIG = "/tmp/.docker"
         STAGING_SERVER = "jenkins-master.sussysus.in"
         PROD_SERVER = "srv773066.hstgr.cloud"
         SSH_STAGING_KEY = "dev-ssh-key"
@@ -28,7 +29,7 @@ pipeline {
         stage('Build docker image') {
             steps {
                 echo "Tagging the image for reuse"
-                sh "docker build -t ${IMAGE}:${TAG} ."
+                sh "DOCKER_CONFIG=/tmp/.docker docker build -t ${IMAGE}:${TAG} ."
             }
         }
         stage('Waiting for Approval') {
