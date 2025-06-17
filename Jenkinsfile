@@ -29,7 +29,7 @@ pipeline {
                 echo "Building and pushing image to Docker Hub"
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     sh """
-                        echo "$DOCKER_PASS | "docker login -u $DOCKER_USER -p --password-stdin
+                        echo "$DOCKER_PASS | "docker login -u $DOCKER_USER --password-stdin
                         docker build -t ${IMAGE}:${TAG} .
                         docker push ${IMAGE}:${TAG}
                     """
@@ -48,7 +48,7 @@ pipeline {
                 sshagent(['dev-ssh-key']) {
                     sh """
                         ssh -o StrictHostKeyChecking=no admin@${STAGING_SERVER} '
-                            echo "$DOCKER_PASS | "docker login -u $DOCKER_USER -p --password-stdin &&
+                            echo "$DOCKER_PASS | "docker login -u $DOCKER_USER --password-stdin &&
                             docker stop basic-webapp-staging || true &&
                             docker rm basic-webapp-staging || true &&
                             docker pull ${IMAGE}:${TAG} &&
