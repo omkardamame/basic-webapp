@@ -16,7 +16,7 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Running a test'
-                sh "docker run --rm ${IMAGE}:${TAG} npm test"
+                sh "npm test"
             }
         }
         stage('Debug') {
