@@ -43,16 +43,17 @@ pipeline {
         }
         stage('Deploy to Staging Server') {
             steps {
-                sshagent(['dev-ssh-key']) {
-                    sh """
-                        ssh -o StrictHostKeyChecking=no admin@${STAGING_SERVER} '
-                            echo "$DOCKER_PASS | "docker login -u $DOCKER_USER --password-stdin &&
-                            docker stop basic-webapp-staging || true &&
-                            docker rm basic-webapp-staging || true &&
-                            docker pull ${IMAGE}:${TAG} &&
-                            docker run -d --name basic-webapp-staging -p 3030:3030 ${IMAGE}:${TAG}
-                        '
-                    """
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sshagent(['dev-ssh-key']) {
+                        sh """
+                            ssh -o StrictHostKeyChecking=no admin@${STAGING_SERVER} '
+                                echo $DOCKER_PASS | "docker login -u $DOCKER_USER --password-stdin &&
+                                docker stop basic-webapp-staging || true &&
+                                docker rm basic-webapp-staging || true &&
+                                docker pull ${IMAGE}:${TAG} &&
+                                docker run -d --name basic-webapp-staging -p 3030:3030 ${IMAGE}:${TAG}
+                            '
+                        """
                 }
             }
         }
