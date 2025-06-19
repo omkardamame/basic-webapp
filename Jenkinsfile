@@ -1,8 +1,8 @@
 pipeline {
     agent {
         docker {
-            image 'cimg/node:24.2.0'
-            args '-u 0 -v /var/run/docker.sock:/var/run/docker.sock'
+            image 'cimg/node:24.2.0'                                    // For building docker image
+            args '-u 0 -v /var/run/docker.sock:/var/run/docker.sock'    // To build/push docker images inside the container
         }
     }
     environment {
