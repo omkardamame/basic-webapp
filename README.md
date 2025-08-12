@@ -18,7 +18,7 @@ npm install
 node app.js
 ```
 
-The app will run at: http://localhost:3000
+The app will run at: http://localhost:3030
 
 ## 🧾 License
 
